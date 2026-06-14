@@ -10,5 +10,8 @@ GEMINI_API_KEY
 GEMINI_MODEL
 ```
 
+Para adicionar a Arena em um banco que ja possui dados, execute apenas
+`arena.sql`. Nao execute novamente o `install.sql`, pois ele recria o schema.
+
 Não existe papel administrativo obrigatório. Cada usuário cria e estuda suas
 próprias trilhas geradas pela IA.

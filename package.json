@@ -9,9 +9,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "lucide-react": "latest",
+    "monaco-editor": "^0.55.1",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

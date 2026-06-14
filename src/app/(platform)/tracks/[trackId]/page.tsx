@@ -20,17 +20,21 @@ export default async function TrackPage({ params }: { params: Promise<{ trackId:
       <Link className="back-link" href="/tracks"><ArrowLeft size={14} /> Minhas trilhas</Link>
       <header className="track-hero panel"><div><span className="eyebrow">{track.topic} · {difficultyLabel(track.level)}</span><h1>{track.title}</h1><p>{track.summary}</p><div className="track-meta"><span><Clock3 size={13} /> Conteúdo gerado sob demanda</span><span>Nota mínima 9,0</span></div></div><span className="track-hero-symbol">{track.title.slice(0, 2).toUpperCase()}</span></header>
       <section className="learning-path">
-        {outline.modules.map((moduleData, moduleIndex) => <article className="path-module" key={moduleData.key}>
-          <header><span className="module-position">{String(moduleIndex + 1).padStart(2, "0")}</span><div><span className="eyebrow">MÓDULO</span><h2>{moduleData.title}</h2><p>{moduleData.summary}</p></div></header>
+        {outline.modules.map((moduleData, moduleIndex) => {
+          const modulePassed = moduleData.lessons.every((lesson) => stateMap.get(lesson.key)?.status === "passed");
+          return <article className={`path-module ${modulePassed ? "path-module-passed" : ""}`} key={moduleData.key}>
+          <header><span className="module-position">{modulePassed ? <CheckCircle2 size={17} /> : String(moduleIndex + 1).padStart(2, "0")}</span><div><span className="eyebrow">MÓDULO {modulePassed && "· CONCLUÍDO"}</span><h2>{moduleData.title}</h2><p>{moduleData.summary}</p></div></header>
           <div className="path-lessons">{moduleData.lessons.map((lesson, lessonIndex) => {
             const state = stateMap.get(lesson.key);
-            return <Link className="path-lesson panel" href={`/tracks/${track.id}/lessons/${lesson.key}`} key={lesson.key}>
+            const passed = state?.status === "passed";
+            return <Link className={`path-lesson panel ${passed ? "path-lesson-passed" : ""}`} href={`/tracks/${track.id}/lessons/${lesson.key}`} key={lesson.key}>
               <span className="path-lesson-state">{state?.status === "passed" ? <CheckCircle2 size={16} /> : <BookOpen size={15} />}</span>
-              <div><small>AULA {String(lessonIndex + 1).padStart(2, "0")}</small><strong>{lesson.title}</strong><p>{lesson.summary}</p></div>
-              <span className="lesson-time">{state?.best_score ?? lesson.estimatedMinutes} {state?.best_score ? "nota" : "min"}</span><ArrowRight size={15} />
+              <div><small>AULA {String(lessonIndex + 1).padStart(2, "0")} {passed && "· CONCLUÍDA"}</small><strong>{lesson.title}</strong><p>{lesson.summary}</p></div>
+              <span className="lesson-time">{passed ? `${state.best_score} nota` : `${lesson.estimatedMinutes} min`}</span><ArrowRight size={15} />
             </Link>;
           })}</div>
-        </article>)}
+        </article>;
+        })}
       </section>
     </main>
   );

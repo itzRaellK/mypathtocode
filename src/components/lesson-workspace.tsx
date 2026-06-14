@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Save, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { evaluateSolution, saveDraft } from "@/app/(platform)/lessons/actions";
+import { CodeEditor } from "@/components/code-editor";
 
 type FileData = { path: string; language: string; content: string };
 
@@ -44,7 +45,7 @@ export function LessonWorkspace({ trackId, lessonKey, initialFiles }: { trackId:
           <button className="text-button" type="button" disabled={action !== null} onClick={handleSave}><Save size={13} /> {action === "saving" ? "Salvando..." : "Salvar rascunho"}</button>
           <button className="button button-primary compact-button" type="button" disabled={action !== null} onClick={handleEvaluate}><Send size={13} /> {action === "evaluating" ? "Avaliando..." : "Enviar para IA"}</button>
         </div></header>
-      <textarea value={file.content} spellCheck={false} onChange={(event) => setFiles((current) => current.map((item, index) => index === active ? { ...item, content: event.target.value } : item))} />
+      <CodeEditor modelId={`lessons/${trackId}/${lessonKey}`} path={file.path} language={file.language} value={file.content} onChange={(content) => setFiles((current) => current.map((item, index) => index === active ? { ...item, content } : item))} />
       {message && <small>{message}</small>}
     </section>
   );
