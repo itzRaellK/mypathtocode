@@ -9,6 +9,7 @@ create table if not exists learning.arena_challenges (
   summary text not null,
   brief text not null,
   starter_files jsonb not null,
+  toolbox jsonb not null default '[]'::jsonb,
   acceptance_criteria jsonb not null,
   evaluation_focus jsonb not null default '[]'::jsonb,
   draft_files jsonb not null default '[]'::jsonb,
@@ -19,6 +20,9 @@ create table if not exists learning.arena_challenges (
   updated_at timestamptz not null default now(),
   completed_at timestamptz
 );
+
+alter table learning.arena_challenges
+  add column if not exists toolbox jsonb not null default '[]'::jsonb;
 
 create table if not exists learning.arena_attempts (
   id uuid primary key default gen_random_uuid(),

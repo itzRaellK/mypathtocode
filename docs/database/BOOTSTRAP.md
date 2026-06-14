@@ -12,6 +12,8 @@ GEMINI_MODEL
 
 Para adicionar a Arena em um banco que ja possui dados, execute apenas
 `arena.sql`. Nao execute novamente o `install.sql`, pois ele recria o schema.
+O arquivo `arena.sql` e incremental e pode ser executado novamente quando
+novos campos da Arena forem adicionados.
 
 Não existe papel administrativo obrigatório. Cada usuário cria e estuda suas
 próprias trilhas geradas pela IA.

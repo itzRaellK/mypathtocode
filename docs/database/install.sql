@@ -161,6 +161,7 @@ create table if not exists learning.arena_challenges (
   summary text not null,
   brief text not null,
   starter_files jsonb not null,
+  toolbox jsonb not null default '[]'::jsonb,
   acceptance_criteria jsonb not null,
   evaluation_focus jsonb not null default '[]'::jsonb,
   draft_files jsonb not null default '[]'::jsonb,

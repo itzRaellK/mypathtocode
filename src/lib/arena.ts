@@ -1,12 +1,14 @@
 import type { CodeEvaluation } from "@/lib/learning";
 
 export type ArenaFile = { path: string; language: string; content: string };
+export type ArenaTool = { name: string; purpose: string; usage: string; examples?: string[] };
 
 export type ArenaChallengeContent = {
   title: string;
   summary: string;
   brief: string;
   starterFiles: ArenaFile[];
+  toolbox: ArenaTool[];
   acceptanceCriteria: string[];
   evaluationFocus: string[];
 };
@@ -19,6 +21,7 @@ export type ArenaChallenge = {
   summary: string;
   brief: string;
   starter_files: ArenaFile[];
+  toolbox: ArenaTool[];
   acceptance_criteria: string[];
   evaluation_focus: string[];
   draft_files: ArenaFile[];
@@ -44,4 +47,3 @@ export const arenaModes = [
 ] as const;
 
 export type ArenaMode = (typeof arenaModes)[number]["key"];
-

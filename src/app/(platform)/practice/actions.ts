@@ -8,14 +8,60 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const validModes = new Set(arenaModes.map((mode) => mode.key));
 
+export async function generateArenaToolbox(challengeId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Sessão expirada." };
+  const { data: challenge } = await supabase.from("arena_challenges").select("*").eq("id", challengeId).eq("user_id", user.id).maybeSingle();
+  if (!challenge) return { ok: false, message: "Desafio não encontrado." };
+
+  const prompt = `Crie uma caixa de ferramentas para ajudar um estudante a resolver este desafio de programação sem entregar a solução.
+Desafio: ${JSON.stringify({
+    title: challenge.title,
+    summary: challenge.summary,
+    brief: challenge.brief,
+    starterFiles: challenge.starter_files,
+    acceptanceCriteria: challenge.acceptance_criteria,
+  })}
+
+Liste todas as funções, tipos, macros, operadores e conceitos necessários ou muito úteis.
+Explique de forma simples o propósito e a forma de uso de cada recurso.
+Não entregue a implementação completa nem a ordem exata da solução.
+
+Retorne SOMENTE JSON:
+{
+  "toolbox": [
+    {
+      "name": "nome ou assinatura do recurso",
+      "purpose": "para que ele serve neste contexto",
+      "usage": "como utilizar sem entregar a resposta",
+      "examples": ["exemplo curto e isolado", "segundo exemplo curto opcional"]
+    }
+  ]
+}`;
+
+  try {
+    const generated = await generateJson<{ toolbox: ArenaChallengeContent["toolbox"] }>(prompt);
+    if (!generated.data?.toolbox?.length) throw new Error("A IA não retornou recursos úteis.");
+    const { error } = await supabase.from("arena_challenges").update({ toolbox: generated.data.toolbox }).eq("id", challengeId).eq("user_id", user.id);
+    if (error) throw new Error(error.message);
+    revalidatePath("/practice");
+    return { ok: true, message: "Caixa de ferramentas gerada." };
+  } catch (error) {
+    return { ok: false, message: error instanceof Error ? error.message : "Falha ao gerar caixa de ferramentas." };
+  }
+}
+
 export async function generateArenaChallenge(mode: ArenaMode) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sessão expirada." };
   if (!validModes.has(mode)) return { ok: false, message: "Modo de treino inválido." };
 
-  const [{ data: recent }, { data: tracks }] = await Promise.all([
+  const [{ data: recent }, { data: recentArenaAttempts }, { data: recentLessonEvaluations }, { data: tracks }] = await Promise.all([
     supabase.from("arena_challenges").select("title,mode,best_score,status").eq("user_id", user.id).order("created_at", { ascending: false }).limit(12),
+    supabase.from("arena_attempts").select("score,feedback,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(8),
+    supabase.from("evaluations").select("score,feedback,created_at,attempts!inner(user_id)").eq("attempts.user_id", user.id).order("created_at", { ascending: false }).limit(8),
     supabase.from("tracks").select("title,topic,level,goal").eq("user_id", user.id).eq("status", "active").limit(8),
   ]);
   const modeData = arenaModes.find((item) => item.key === mode)!;
@@ -24,18 +70,24 @@ export async function generateArenaChallenge(mode: ArenaMode) {
     operation: "arena_challenge",
     target_type: "arena_challenge",
     status: "processing",
-    input: { mode, recent, tracks },
+    input: { mode, recent, recentArenaAttempts, recentLessonEvaluations, tracks },
   }).select("id").single();
 
   const prompt = `Crie UM desafio inédito e autocontido de programação para uma arena de prática infinita.
 Modo escolhido: ${JSON.stringify(modeData)}
 Trilhas atuais do estudante: ${JSON.stringify(tracks ?? [])}
 Desafios recentes, que não devem ser repetidos: ${JSON.stringify(recent ?? [])}
+Avaliações recentes da Arena: ${JSON.stringify(recentArenaAttempts ?? [])}
+Avaliações recentes das aulas: ${JSON.stringify(recentLessonEvaluations ?? [])}
 
 O desafio não pertence a uma aula. Ele precisa fornecer contexto suficiente para ser resolvido sozinho.
-No modo adaptativo, use o histórico e as trilhas para escolher um desafio adequado.
+Use os erros e melhorias apontados nas avaliações para treinar fraquezas recorrentes em um contexto diferente, sem repetir o mesmo enunciado.
+No modo adaptativo, priorize explicitamente os erros recentes que ainda não foram dominados.
 No modo caça ao bug, forneça código inicial com um problema concreto a corrigir.
 Não invente APIs. Para Unreal Engine, use APIs reais e informe claramente qualquer contexto necessário.
+Inclua em toolbox todas as funções, tipos, macros, operadores e conceitos necessários para resolver o desafio.
+Cada item da toolbox deve explicar finalidade e forma de uso e trazer um ou dois exemplos curtos e isolados.
+Os exemplos devem demonstrar apenas o recurso individual, sem entregar a implementação completa nem a ordem exata da solução.
 
 Retorne SOMENTE JSON:
 {
@@ -43,6 +95,7 @@ Retorne SOMENTE JSON:
   "summary": "o que será treinado",
   "brief": "enunciado completo e inequívoco",
   "starterFiles": [{"path":"arquivo.ext","language":"cpp","content":"código inicial"}],
+  "toolbox": [{"name":"FMath::Sin(float)","purpose":"calcular uma oscilação suave","usage":"recebe um valor em radianos e retorna entre -1 e 1","examples":["const float Wave = FMath::Sin(Time);"]}],
   "acceptanceCriteria": ["critério objetivo"],
   "evaluationFocus": ["aspecto que será avaliado"]
 }`;
@@ -59,6 +112,7 @@ Retorne SOMENTE JSON:
       summary: generated.data.summary,
       brief: generated.data.brief,
       starter_files: generated.data.starterFiles,
+      toolbox: generated.data.toolbox ?? [],
       acceptance_criteria: generated.data.acceptanceCriteria,
       evaluation_focus: generated.data.evaluationFocus,
       draft_files: generated.data.starterFiles,
@@ -142,4 +196,3 @@ A nota deve estar entre 0 e 10. Aprovação exige nota maior ou igual a 9. Não 
     return { ok: false, message: error instanceof Error ? error.message : "Falha ao avaliar desafio." };
   }
 }
-
