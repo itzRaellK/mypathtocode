@@ -1,8 +1,9 @@
-import { CheckCircle2, CircleX, Dumbbell, History, RotateCcw, Sparkles, Target, TrendingUp, Trophy, Wrench } from "lucide-react";
+import { CheckCircle2, CircleX, Dumbbell, History, Sparkles, Target, TrendingUp, Trophy, Wrench } from "lucide-react";
 import { generateArenaChallenge, generateArenaToolbox } from "@/app/(platform)/practice/actions";
 import { ArenaToolReference } from "@/components/arena-tool-reference";
 import { ArenaWorkspace } from "@/components/arena-workspace";
 import { AsyncActionButton } from "@/components/async-action-button";
+import { ArenaChallengeModal } from "@/components/arena-challenge-modal";
 import { arenaModes, type ArenaAttempt, type ArenaChallenge } from "@/lib/arena";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -45,10 +46,7 @@ export default async function PracticePage() {
       <div><span className="eyebrow">{challenge.mode} · {challenge.status === "completed" ? "CONCLUÍDO" : "EM JOGO"}</span><h1>{challenge.title}</h1><p>{challenge.summary}</p></div>
       <div className="arena-active-actions">
         {challenge.best_score !== null && <div className="arena-compact-score"><span>MELHOR NOTA</span><strong>{challenge.best_score}</strong></div>}
-        <details className="arena-new-challenge">
-          <summary className="button button-secondary"><RotateCcw size={14} /> Novo desafio</summary>
-          <div className="arena-new-challenge-menu"><ModePicker activeMode={challenge.mode} /></div>
-        </details>
+        <ArenaChallengeModal activeMode={challenge.mode} completed={challenge.status === "completed"} />
       </div>
     </header>
 
