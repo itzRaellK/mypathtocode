@@ -58,7 +58,7 @@ pela aplicacao.
 
 ## Escopo atual
 
-- cadastro e login;
+- login pessoal, sem cadastro publico;
 - dashboard pessoal;
 - geracao de trilhas a partir de propostas prontas;
 - geracao granular de aulas;

@@ -1,12 +1,8 @@
 import { ArrowRight, Braces, Check, Cpu, ShieldCheck, Sparkles } from "lucide-react";
-import { signIn, signUp } from "@/app/auth/actions";
+import { signIn } from "@/app/auth/actions";
 import { Brand } from "@/components/brand";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ message?: string }>;
-}) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
   const { message } = await searchParams;
 
   return (
@@ -38,33 +34,16 @@ export default async function LoginPage({
 
       <section className="auth-form-side">
         <div className="auth-form-wrap">
-          <span className="auth-kicker">ACESSO AO SISTEMA</span>
+          <span className="auth-kicker">ACESSO PESSOAL</span>
           <h2>Continue sua evolução.</h2>
           <p>Entre com sua conta para acessar a central.</p>
           {message && <div className="auth-message">{message}</div>}
           <form className="auth-form" action={signIn}>
-            <label>
-              <span>E-mail</span>
-              <input name="email" type="email" placeholder="voce@exemplo.com" required />
-            </label>
-            <label>
-              <span>Senha</span>
-              <input name="password" type="password" placeholder="••••••••" minLength={6} required />
-            </label>
-            <button className="button button-primary auth-submit" type="submit">
-              Entrar na central <ArrowRight size={16} />
-            </button>
+            <label><span>E-mail</span><input name="email" type="email" autoComplete="email" required /></label>
+            <label><span>Senha</span><input name="password" type="password" autoComplete="current-password" minLength={6} required /></label>
+            <button className="button button-primary auth-submit" type="submit">Entrar na central <ArrowRight size={16} /></button>
           </form>
-          <details className="signup-details">
-            <summary>Criar uma nova conta</summary>
-            <form className="auth-form signup-form" action={signUp}>
-              <label><span>Nome</span><input name="displayName" required /></label>
-              <label><span>E-mail</span><input name="email" type="email" required /></label>
-              <label><span>Senha</span><input name="password" type="password" minLength={6} required /></label>
-              <button className="button button-ghost auth-submit" type="submit">Criar conta</button>
-            </form>
-          </details>
-          <small className="auth-legal">Ao entrar, você concorda em estudar com seriedade.</small>
+          <small className="auth-legal">Acesso restrito ao proprietário.</small>
         </div>
       </section>
     </main>

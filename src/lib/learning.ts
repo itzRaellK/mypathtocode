@@ -26,6 +26,15 @@ export type LessonContent = {
   };
 };
 
+export type CodeEvaluation = {
+  score: number;
+  passed: boolean;
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  criteria: Array<{ criterion: string; met: boolean; feedback: string }>;
+};
+
 export function lessonsFromOutline(outline: TrackOutline) {
   return outline.modules.flatMap((moduleData) =>
     moduleData.lessons.map((lesson) => ({ ...lesson, moduleKey: moduleData.key, moduleTitle: moduleData.title })),

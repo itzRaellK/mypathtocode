@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { generateJson } from "@/lib/gemini";
-import { findLesson, type LessonContent, type TrackOutline } from "@/lib/learning";
+import { findLesson, type CodeEvaluation, type LessonContent, type TrackOutline } from "@/lib/learning";
 
 export async function generateLesson(trackId: string, lessonKey: string) {
   const supabase = await createSupabaseServerClient();
@@ -105,15 +105,6 @@ export async function saveDraft(trackId: string, lessonKey: string, files: Array
   return error ? { ok: false, message: error.message } : { ok: true, message: "Rascunho salvo." };
 }
 
-type CodeEvaluation = {
-  score: number;
-  passed: boolean;
-  summary: string;
-  strengths: string[];
-  improvements: string[];
-  criteria: Array<{ criterion: string; met: boolean; feedback: string }>;
-};
-
 export async function evaluateSolution(trackId: string, lessonKey: string, files: Array<{ path: string; language: string; content: string }>) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -207,7 +198,7 @@ Nao presuma que o codigo compila quando houver erro visivel. Nao exija conceitos
     revalidatePath(`/tracks/${trackId}/lessons/${lessonKey}`);
     revalidatePath(`/tracks/${trackId}`);
     revalidatePath("/dashboard");
-    return { ok: true, message: `Nota ${score.toFixed(1)}: ${evaluation.summary}` };
+    return { ok: true, message: "Avaliação concluída. Confira o relatório abaixo." };
   } catch (error) {
     await supabase.from("attempts").update({ status: "failed" }).eq("id", attempt.id);
     if (run) await supabase.from("ai_runs").update({
