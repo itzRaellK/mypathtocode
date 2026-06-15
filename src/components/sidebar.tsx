@@ -16,7 +16,7 @@ import { AccentSwitcher } from "@/components/accent-switcher";
 import { signOut } from "@/app/auth/actions";
 
 const primary = [
-  { href: "/dashboard", label: "Central", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tracks", label: "Trilhas", icon: BookOpenText },
   { href: "/practice", label: "Arena", icon: Dumbbell },
   { href: "/achievements", label: "Conquistas", icon: Award },

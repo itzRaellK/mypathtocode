@@ -11,6 +11,7 @@ const accents = [
 
 function applyAccent(id: string) {
   document.documentElement.dataset.accent = id;
+  window.dispatchEvent(new CustomEvent("accentchange", { detail: id }));
 }
 
 export function AccentSwitcher() {
