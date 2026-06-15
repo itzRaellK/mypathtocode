@@ -39,7 +39,7 @@ export function ArenaChallengeModal({ activeMode, completed }: { activeMode: str
           {arenaModes.map((mode) => <article className={`arena-modal-mode ${activeMode === mode.key ? "arena-modal-mode-active" : ""}`} key={mode.key}>
             <div><Sparkles size={17} /><span>{mode.key === "adaptive" ? "RECOMENDADO" : "MODO"}</span></div>
             <h3>{mode.title}</h3><p>{mode.description}</p>
-            <AsyncActionButton action={generateArenaChallenge.bind(null, mode.key)} label="Escolher modo" pendingLabel="Criando desafio..." className="button button-secondary" />
+            <AsyncActionButton action={generateArenaChallenge.bind(null, mode.key)} label="Escolher modo" pendingLabel="Criando desafio..." className="button button-secondary" onSuccess={() => setOpen(false)} />
           </article>)}
         </section>
         <footer><button className="text-button" type="button" onClick={() => setOpen(false)}>Cancelar</button></footer>
@@ -47,4 +47,3 @@ export function ArenaChallengeModal({ activeMode, completed }: { activeMode: str
     </div>}
   </>;
 }
-

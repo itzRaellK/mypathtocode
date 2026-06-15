@@ -12,12 +12,14 @@ export function AsyncActionButton({
   pendingLabel = "Gerando...",
   icon = "sparkles",
   className = "button button-primary",
+  onSuccess,
 }: {
   action: () => Promise<Result>;
   label: string;
   pendingLabel?: string;
   icon?: "sparkles" | "refresh";
   className?: string;
+  onSuccess?: (result: Result) => void;
 }) {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<Result | null>(null);
@@ -28,6 +30,7 @@ export function AsyncActionButton({
       <button className={className} type="button" disabled={pending} onClick={() => startTransition(async () => {
         const next = await action();
         setResult(next);
+        if (next.ok) onSuccess?.(next);
         if (next.href) router.push(next.href);
         else if (next.ok) router.refresh();
       })}>

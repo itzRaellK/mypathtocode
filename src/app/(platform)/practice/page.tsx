@@ -54,7 +54,7 @@ export default async function PracticePage() {
 
     <section className="arena-solve-layout">
       <div className="arena-editor-column">
-        {files && <ArenaWorkspace challengeId={challenge.id} initialFiles={files} />}
+        {files && <ArenaWorkspace key={challenge.id} challengeId={challenge.id} initialFiles={files} />}
       </div>
       <aside className="arena-reference-panel panel">
         <section>

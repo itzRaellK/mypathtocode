@@ -121,7 +121,7 @@ Retorne SOMENTE JSON:
     if (error || !challenge) throw new Error(error?.message ?? "Falha ao salvar desafio.");
     if (run) await supabase.from("ai_runs").update({ status: "completed", target_id: challenge.id, model: generated.model, output: generated.data, usage: generated.usage, completed_at: new Date().toISOString() }).eq("id", run.id);
     revalidatePath("/practice");
-    return { ok: true, message: "Novo desafio gerado." };
+    return { ok: true, message: "Novo desafio gerado.", href: `/practice?challenge=${challenge.id}` };
   } catch (error) {
     if (run) await supabase.from("ai_runs").update({ status: "failed", error_message: error instanceof Error ? error.message : "Falha desconhecida.", completed_at: new Date().toISOString() }).eq("id", run.id);
     return { ok: false, message: error instanceof Error ? error.message : "Falha ao gerar desafio." };
