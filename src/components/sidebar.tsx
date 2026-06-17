@@ -5,6 +5,7 @@ import {
   BookOpenText,
   Dumbbell,
   LayoutDashboard,
+  LibraryBig,
   LogOut,
   Settings,
   UserRound,
@@ -19,6 +20,7 @@ const primary = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tracks", label: "Trilhas", icon: BookOpenText },
   { href: "/practice", label: "Arena", icon: Dumbbell },
+  { href: "/library", label: "Biblioteca", icon: LibraryBig },
   { href: "/achievements", label: "Conquistas", icon: Award },
 ];
 
